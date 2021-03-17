@@ -1,4 +1,6 @@
+
 # sfhb - super fast headless blog
+[![Publish Docker image](https://github.com/chwzr/sfhb/actions/workflows/main.yml/badge.svg)](https://github.com/chwzr/sfhb/actions/workflows/main.yml)
 
 This is a super fast REST-API Server for simple blogs written in golang. 
 

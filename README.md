@@ -1,4 +1,4 @@
-# sfhb - super fast headles blog
+# sfhb - super fast headless blog
 
 This is a super fast REST-API Server for simple blogs written in golang. 
 

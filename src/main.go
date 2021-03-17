@@ -154,6 +154,7 @@ func main() {
 			log.Fatalln(err)
 		}
 	}
+	// start http server
 	handleRequests()
 }
 

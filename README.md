@@ -60,3 +60,11 @@ PORT (default: 8080)
 TOKEN (default: none)
 
 The token is used for authentication of POST and DELETE endpoints
+
+
+## Docker
+
+
+Docker image is available on Docker Hub
+
+`docker run -p 8080:8080 -e TOKEN=mysecrettoken chwzr/sfhb`

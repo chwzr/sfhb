@@ -9,7 +9,7 @@ WORKDIR $GOPATH/src/sfhb/
 COPY . .
 # Fetch dependencies.
 # Using go get.
-RUN go get -d -v
+RUN cd src && go get -d -v
 # Build the binary.
 RUN go build -o /go/bin/sfhb src/main.go
 

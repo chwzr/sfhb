@@ -69,6 +69,15 @@ func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func createNewArticle(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding,X-Session-Token, X-CSRF-Token, Authorization")
+	}
+	if r.Method == "OPTIONS" {
+		return
+	}
 
 	token := r.Header.Get("X-Session-Token")
 
@@ -99,6 +108,15 @@ func createNewArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func deleteArticle(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding,X-Session-Token, X-CSRF-Token, Authorization")
+	}
+	if r.Method == "OPTIONS" {
+		return
+	}
 	token := r.Header.Get("X-Session-Token")
 
 	if token == os.Getenv("TOKEN") {
@@ -137,8 +155,8 @@ func handleRequests() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", homePage)
 	r.HandleFunc("/articles", returnAllArticles)
-	r.HandleFunc("/article", createNewArticle).Methods("POST")
-	r.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
+	r.HandleFunc("/article", createNewArticle).Methods("POST", "OPTIONS")
+	r.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE", "OPTIONS")
 	r.HandleFunc("/article/{id}", returnSingleArticle)
 
 	server := &http.Server{
@@ -177,23 +195,4 @@ func main() {
 	}
 	// start http server
 	handleRequests()
-}
-
-type MyServer struct {
-	r *mux.Router
-}
-
-func (s *MyServer) ServeHTTP(rw http.ResponseWriter, req *http.Request) {
-	if origin := req.Header.Get("Origin"); origin != "" {
-		rw.Header().Set("Access-Control-Allow-Origin", origin)
-		rw.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
-		rw.Header().Set("Access-Control-Allow-Headers",
-			"Accept, Content-Type, Content-Length, Accept-Encoding,X-Session-Token, X-CSRF-Token, Authorization")
-	}
-	// Stop here if its Preflighted OPTIONS request
-	if req.Method == "OPTIONS" {
-		return
-	}
-	// Lets Gorilla work
-	s.r.ServeHTTP(rw, req)
 }

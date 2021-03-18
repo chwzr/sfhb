@@ -34,6 +34,15 @@ func homePage(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnAllArticles(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding,X-Session-Token, X-CSRF-Token, Authorization")
+	}
+	if r.Method == "OPTIONS" {
+		return
+	}
 	if _, err := os.Stat("./data.json"); err == nil {
 		if err := persist.Load("./data.json", &Articles); err != nil {
 			log.Fatalln(err)
@@ -47,6 +56,16 @@ func returnAllArticles(w http.ResponseWriter, r *http.Request) {
 }
 
 func returnSingleArticle(w http.ResponseWriter, r *http.Request) {
+	if origin := r.Header.Get("Origin"); origin != "" {
+		w.Header().Set("Access-Control-Allow-Origin", origin)
+		w.Header().Set("Access-Control-Allow-Methods", "POST, GET, OPTIONS, PUT, DELETE")
+		w.Header().Set("Access-Control-Allow-Headers",
+			"Accept, Content-Type, Content-Length, Accept-Encoding,X-Session-Token, X-CSRF-Token, Authorization")
+	}
+	if r.Method == "OPTIONS" {
+		return
+	}
+
 	if _, err := os.Stat("./data.json"); err == nil {
 		if err := persist.Load("./data.json", &Articles); err != nil {
 			log.Fatalln(err)
@@ -154,10 +173,10 @@ func handleRequests() {
 
 	r := mux.NewRouter()
 	r.HandleFunc("/", homePage)
-	r.HandleFunc("/articles", returnAllArticles)
+	r.HandleFunc("/articles", returnAllArticles).Methods("GET", "OPTIONS")
 	r.HandleFunc("/article", createNewArticle).Methods("POST", "OPTIONS")
 	r.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE", "OPTIONS")
-	r.HandleFunc("/article/{id}", returnSingleArticle)
+	r.HandleFunc("/article/{id}", returnSingleArticle).Methods("GET", "OPTIONS")
 
 	server := &http.Server{
 		Addr:    ":https",

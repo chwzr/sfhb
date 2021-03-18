@@ -18,6 +18,8 @@ RUN GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-w -s" -o /go/bin/s
 # STEP 2 build a small image
 ############################
 FROM scratch
+# copy ca certs for letsencrypt to work
+COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 # Copy our static executable.
 COPY --from=builder /go/bin/sfhb /sfhb
 # Run the hello binary.

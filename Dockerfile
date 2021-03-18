@@ -18,6 +18,6 @@ RUN go build -o /go/bin/sfhb src/main.go
 ############################
 FROM scratch
 # Copy our static executable.
-COPY --from=builder /go/bin/sfhb /go/bin/sfhb
+COPY --from=builder /go/bin/sfhb /sfhb
 # Run the hello binary.
-ENTRYPOINT ["/go/bin/sfhb"]
+CMD ["/sfhb"]

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"crypto/tls"
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
@@ -14,6 +15,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/gorilla/mux"
+	"golang.org/x/crypto/acme/autocert"
 )
 
 // Article - Our struct for all articles
@@ -125,13 +127,29 @@ func deleteArticle(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleRequests() {
+
+	certManager := autocert.Manager{
+		Prompt: autocert.AcceptTOS,
+		//HostPolicy: autocert.HostWhitelist("example.com"),
+		Cache: autocert.DirCache("./certs"), //Folder for storing certificates
+	}
+
 	r := mux.NewRouter()
 	r.HandleFunc("/", homePage)
 	r.HandleFunc("/articles", returnAllArticles)
 	r.HandleFunc("/article", createNewArticle).Methods("POST")
 	r.HandleFunc("/article/{id}", deleteArticle).Methods("DELETE")
 	r.HandleFunc("/article/{id}", returnSingleArticle)
-	http.Handle("/", &MyServer{r})
+
+	server := &http.Server{
+		Addr:    ":https",
+		Handler: r,
+		TLSConfig: &tls.Config{
+			GetCertificate: certManager.GetCertificate,
+		},
+	}
+
+	go http.ListenAndServe(":http", certManager.HTTPHandler(nil))
 
 	port := ":" + os.Getenv("PORT")
 	if port == ":" {
@@ -142,7 +160,10 @@ func handleRequests() {
 	if os.Getenv("TOKEN") == "" {
 		log.Printf("Authentication is disabled! Please set TOKEN environment variable to enable.")
 	}
-	http.ListenAndServe(port, nil)
+
+	log.Fatal(server.ListenAndServeTLS("", "")) //Key and cert are coming from Let's Encrypt
+
+	// http.ListenAndServe(port, nil)
 }
 
 func main() {
